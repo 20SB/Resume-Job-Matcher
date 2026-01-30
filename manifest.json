@@ -1,0 +1,28 @@
+{
+    "manifest_version": 3,
+    "name": "Resume Job Matcher: AI CV Analysis & Optimization",
+    "version": "1.0",
+    "description": "Boost your job search with AI. Instantly match your Resume/CV to any job description on LinkedIn, Indeed, and more. Get match scores, missing skills, and optimization tips.",
+    "icons": {
+        "16": "logo.png",
+        "48": "logo.png",
+        "128": "logo.png"
+    },
+    "permissions": ["activeTab", "storage", "scripting"],
+    "host_permissions": ["<all_urls>"],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Resume Job Matcher",
+        "default_icon": "logo.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"],
+            "css": ["styles.css"]
+        }
+    ]
+}

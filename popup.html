@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CV Matcher Settings</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                width: 350px;
+                padding: 20px;
+                background-color: #f4f4f9;
+            }
+            h2 {
+                color: #333;
+                margin-top: 0;
+                font-size: 18px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+                color: #555;
+                font-weight: 600;
+                font-size: 13px;
+            }
+            input[type="text"],
+            textarea {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                box-sizing: border-box;
+                font-size: 13px;
+            }
+            textarea {
+                height: 150px;
+                resize: vertical;
+            }
+            button {
+                background-color: #4285f4;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 6px;
+                cursor: pointer;
+                width: 100%;
+                font-size: 14px;
+                font-weight: 600;
+                transition: background-color 0.2s;
+            }
+            button:hover {
+                background-color: #3367d6;
+            }
+            .status {
+                margin-top: 10px;
+                text-align: center;
+                font-size: 12px;
+                color: green;
+                display: none;
+            }
+            .help-link {
+                text-align: right;
+                margin-bottom: 15px;
+            }
+            .help-link a {
+                font-size: 12px;
+                color: #4285f4;
+                text-decoration: none;
+            }
+            .help-link a:hover {
+                text-decoration: underline;
+            }
+            .footer {
+                margin-top: 20px;
+                text-align: center;
+                font-size: 11px;
+                color: #999;
+            }
+            .footer strong {
+                color: #777;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Resume Job Matcher</h2>
+        <div class="help-link">
+            <a href="help.html" target="_blank">How to get CV Text?</a>
+        </div>
+        <div class="form-group">
+            <label for="apiKey">Gemini API Key <a href="help_api.html" target="_blank" style="float: right; font-size: 11px; font-weight: normal; color: #4285f4">Get Key?</a></label>
+            <input type="text" id="apiKey" placeholder="Enter your Gemini API Key" />
+        </div>
+        <div class="form-group">
+            <label for="modelName">Model Name</label>
+            <input type="text" id="modelName" placeholder="e.g. gemini-1.5-flash" value="gemini-1.5-flash" />
+        </div>
+        <div class="form-group">
+            <label for="cvText">Your CV / Resume Text</label>
+            <textarea id="cvText" placeholder="Paste your full CV text here..."></textarea>
+        </div>
+        <button id="saveBtn">Save Settings</button>
+        <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px">
+            <button id="analyzeBtn" style="background-color: #34a853">Analyze Current Page</button>
+        </div>
+        <div id="status" class="status">Settings saved successfully!</div>
+        <div class="footer">
+            Made by <a href="https://subha-1.netlify.app/" target="_blank"><strong>Subha Biswal</strong></a>
+        </div>
+        <script src="popup.js"></script>
+    </body>
+</html>

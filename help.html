@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CV Matcher - Help</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                color: #333;
+                line-height: 1.6;
+            }
+            h2 {
+                color: #4285f4;
+                border-bottom: 2px solid #eee;
+                padding-bottom: 10px;
+            }
+            .step {
+                margin-bottom: 20px;
+            }
+            .step h3 {
+                margin-bottom: 5px;
+                font-size: 16px;
+            }
+            code {
+                background-color: #f4f4f9;
+                padding: 2px 5px;
+                border-radius: 4px;
+                font-family: Consolas, monospace;
+            }
+            a {
+                color: #4285f4;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            .footer {
+                margin-top: 40px;
+                font-size: 12px;
+                color: #888;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>How to convert your PDF CV to Text</h2>
+        <p>The CV Matcher extension currently requires raw text input to analyze your resume against job descriptions. Since most CVs are in PDF format, you'll need to extract the text first.</p>
+
+        <div class="step">
+            <h3>Option 1: Copy and Paste (Simplest)</h3>
+            <p>1. Open your PDF resume.</p>
+            <p>2. Press <code>Ctrl + A</code> (or <code>Cmd + A</code> on Mac) to select all text.</p>
+            <p>3. Copy the text (<code>Ctrl + C</code>).</p>
+            <p>4. Paste it into the "Your CV / Resume Text" field in the extension settings.</p>
+        </div>
+
+        <div class="step">
+            <h3>Option 2: Use an Online Converter</h3>
+            <p>If copy-pasting formatting looks broken, try a dedicated tool:</p>
+            <ul>
+                <li><a href="https://www.adobe.com/acrobat/online/pdf-to-word.html" target="_blank">Adobe PDF to Word</a> (Then copy text from Word)</li>
+                <li><a href="https://pdf2text.com/" target="_blank">PDF to Text Converter</a></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>Option 3: Use AI (Gemini / ChatGPT)</h3>
+            <p>Upload your PDF to an AI tool and ask it to extract the text. Use this prompt:</p>
+            <div style="position: relative; background: #eee; padding: 10px; border-radius: 4px; border: 1px solid #ddd">
+                <code id="aiPrompt" style="display: block; white-space: pre-wrap; margin-bottom: 10px; background: none; padding: 0">Please convert the attached CV/Resume PDF into plain text. Keep the sections clear but remove any layout formatting, headers, or footers. Output ONLY the raw text content so I can copy it.</code>
+                <button id="copyBtn" style="background: #fff; border: 1px solid #ccc; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 4px">Copy Prompt</button>
+                <span id="copyMsg" style="font-size: 12px; color: green; margin-left: 10px; opacity: 0; transition: opacity 0.3s">Copied!</span>
+            </div>
+        </div>
+
+        <!-- <script>
+            function copyPrompt() {
+                const promptText = document.getElementById("aiPrompt").innerText;
+                navigator.clipboard.writeText(promptText).then(() => {
+                    const msg = document.getElementById("copyMsg");
+                    msg.style.opacity = 1;
+                    setTimeout(() => {
+                        msg.style.opacity = 0;
+                    }, 2000);
+                });
+            }
+        </script> -->
+        <script src="help.js"></script>
+
+        <div class="footer">
+            Made by <a href="https://subha-1.netlify.app/" target="_blank"><strong>Subha Biswal</strong></a>
+        </div>
+    </body>
+</html>
