@@ -15,51 +15,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Authentication Logic ---
 
-    function updateAuthUI(token) {
+    function updateAuthUI(token, email) {
         if (token) {
             loginSection.style.display = 'none';
             logoutSection.style.display = 'block';
-            checkSheetStatus(token);
+
+            // Show user email if available
+            const emailDisplay = document.getElementById('userEmailDisplay') || createEmailDisplay();
+            emailDisplay.textContent = email ? `Logged in as: ${email}` : 'Logged in';
+
+            checkSheetStatus(token, email);
         } else {
             loginSection.style.display = 'block';
             logoutSection.style.display = 'none';
+            const emailDisplay = document.getElementById('userEmailDisplay');
+            if (emailDisplay) emailDisplay.textContent = '';
         }
     }
 
+    function createEmailDisplay() {
+        const div = document.createElement('div');
+        div.id = 'userEmailDisplay';
+        div.style.marginBottom = '10px';
+        div.style.fontSize = '12px';
+        div.style.color = '#666';
+        div.style.textAlign = 'center';
+        logoutSection.insertBefore(div, logoutBtn);
+        return div;
+    }
+
+    async function getUserEmail(token) {
+        try {
+            const response = await fetch('https://www.googleapis.com/oauth2/v1/userinfo', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                return data.email;
+            }
+        } catch (e) {
+            console.error("Failed to fetch email", e);
+        }
+        return null;
+    }
+
     function checkAuth() {
-        chrome.identity.getAuthToken({ interactive: false }, (token) => {
+        chrome.identity.getAuthToken({ interactive: false }, async (token) => {
             if (chrome.runtime.lastError || !token) {
-                updateAuthUI(null);
+                updateAuthUI(null, null);
             } else {
-                updateAuthUI(token);
+                const email = await getUserEmail(token);
+                updateAuthUI(token, email);
             }
         });
     }
 
-    async function checkSheetStatus(token) {
-        // Update button text based on if sheet exists locally
-        const storage = await chrome.storage.local.get(['spreadsheetId']);
-        if (storage.spreadsheetId) {
+    async function checkSheetStatus(token, email) {
+        if (!email) {
+            createSheetBtn.textContent = "Error: Email needed";
+            createSheetBtn.disabled = true;
+            return;
+        }
+
+        // Update button text based on if sheet exists locally (using email key)
+        const storageKey = `spreadsheetId_${email}`;
+        const storage = await chrome.storage.local.get([storageKey]);
+        const sheetId = storage[storageKey];
+
+        if (sheetId) {
             createSheetBtn.textContent = "Open Tracker Sheet";
             createSheetBtn.onclick = () => {
-                window.open(`https://docs.google.com/spreadsheets/d/${storage.spreadsheetId}`, '_blank');
+                window.open(`https://docs.google.com/spreadsheets/d/${sheetId}`, '_blank');
             };
         } else {
             createSheetBtn.textContent = "Create Tracker Sheet";
-            createSheetBtn.onclick = () => handleCreateSheet(token);
+            createSheetBtn.onclick = () => handleCreateSheet(token, email);
         }
     }
 
-    async function handleCreateSheet(token) {
+    async function handleCreateSheet(token, email) {
         createSheetBtn.disabled = true;
         createSheetBtn.textContent = "Creating...";
 
         try {
             // SheetsService is available from sheets.js included in popup.html
-            const sheetId = await SheetsService.getOrCreateSheet(token);
+            const sheetId = await SheetsService.getOrCreateSheet(token, email);
             sheetStatus.textContent = "Sheet ready!";
             sheetStatus.style.color = "green";
-            checkSheetStatus(token); // Refresh button state
+            checkSheetStatus(token, email); // Refresh button state
         } catch (err) {
             console.error(err);
             sheetStatus.textContent = "Error: " + err.message;
@@ -71,12 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Login
     loginBtn.addEventListener('click', () => {
-        chrome.identity.getAuthToken({ interactive: true }, (token) => {
+        chrome.identity.getAuthToken({ interactive: true }, async (token) => {
             if (chrome.runtime.lastError) {
                 alert("Login failed: " + chrome.runtime.lastError.message);
                 return;
             }
-            updateAuthUI(token);
+            const email = await getUserEmail(token);
+            updateAuthUI(token, email);
         });
     });
 
@@ -84,12 +128,24 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutBtn.addEventListener('click', () => {
         chrome.identity.getAuthToken({ interactive: false }, (token) => {
             if (token) {
-                chrome.identity.removeCachedAuthToken({ token: token }, () => {
-                    updateAuthUI(null);
-                    alert("Logged out.");
-                });
+                // 1. Revoke token on Google's server to force re-consent/account choice next time
+                fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
+                    .then(() => {
+                        // 2. Remove from Chrome's cache
+                        chrome.identity.removeCachedAuthToken({ token: token }, () => {
+                            updateAuthUI(null, null);
+                            alert("Logged out successfully.");
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Revocation failed', err);
+                        // Fallback: remove from cache anyway
+                        chrome.identity.removeCachedAuthToken({ token: token }, () => {
+                            updateAuthUI(null, null);
+                        });
+                    });
             } else {
-                updateAuthUI(null);
+                updateAuthUI(null, null);
             }
         });
     });

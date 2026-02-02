@@ -36,7 +36,19 @@ async function saveJobToSheet(jobData) {
                     throw new Error("SheetsService not loaded");
                 }
 
-                const sheetId = await SheetsService.getOrCreateSheet(token);
+                // Fetch user email for storage key
+                const userResponse = await fetch('https://www.googleapis.com/oauth2/v1/userinfo', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!userResponse.ok) {
+                    throw new Error("Failed to fetch user email");
+                }
+
+                const userData = await userResponse.json();
+                const email = userData.email;
+
+                const sheetId = await SheetsService.getOrCreateSheet(token, email);
                 const result = await SheetsService.appendJob(token, sheetId, jobData);
                 resolve(result);
             } catch (err) {

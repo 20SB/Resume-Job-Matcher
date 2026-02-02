@@ -9,14 +9,19 @@ const SheetsService = {
     /**
      * Get or create the tracker spreadsheet
      */
-    async getOrCreateSheet(token) {
+    async getOrCreateSheet(token, email) {
+        if (!email) throw new Error("User email required for storage key");
+        const storageKey = `spreadsheetId_${email}`;
+
         // 1. Check if we have a stored ID
-        const storage = await chrome.storage.local.get(['spreadsheetId']);
-        if (storage.spreadsheetId) {
+        const storage = await chrome.storage.local.get([storageKey]);
+        const storedId = storage[storageKey];
+
+        if (storedId) {
             // Validate if it still exists
             try {
-                await this.getSheetDetails(token, storage.spreadsheetId);
-                return storage.spreadsheetId;
+                await this.getSheetDetails(token, storedId);
+                return storedId;
             } catch (e) {
                 console.warn('Stored spreadsheet ID invalid or not found, creating new one.', e);
                 // Fall through to create new
@@ -26,13 +31,13 @@ const SheetsService = {
         // 2. Search for existing sheet by name (to prevent duplicates if local storage cleared)
         const searchResult = await this.searchSheetByName(token, this.SPREADSHEET_TITLE);
         if (searchResult) {
-            await chrome.storage.local.set({ spreadsheetId: searchResult });
+            await chrome.storage.local.set({ [storageKey]: searchResult });
             return searchResult;
         }
 
         // 3. Create new sheet
         const newId = await this.createNewSheet(token);
-        await chrome.storage.local.set({ spreadsheetId: newId });
+        await chrome.storage.local.set({ [storageKey]: newId });
         return newId;
     },
 
@@ -153,5 +158,11 @@ const SheetsService = {
 };
 
 // Make available globally or via module export depending on context
-// Since this is a simple extension without bundler, we'll attach to window or just be included
-window.SheetsService = SheetsService;
+// Supports both Window (Popup) and Service Worker (Background) environments
+if (typeof self !== 'undefined') {
+    self.SheetsService = SheetsService;
+} else if (typeof window !== 'undefined') {
+    window.SheetsService = SheetsService;
+} else {
+    globalThis.SheetsService = SheetsService;
+}

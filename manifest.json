@@ -12,7 +12,7 @@
     "host_permissions": ["<all_urls>"],
     "oauth2": {
         "client_id": "519999497260-o8trp9387u06pnau99qj01iab8lq4sq2.apps.googleusercontent.com",
-        "scopes": ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"]
+        "scopes": ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/userinfo.email"]
     },
     "action": {
         "default_popup": "popup.html",
