@@ -225,3 +225,41 @@ footer {
     color: var(--text-light);
     margin-bottom: 15px;
 }
+
+/* Steps for How it Works */
+.step-card {
+    display: flex;
+    gap: 30px;
+    background: var(--white);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+    align-items: flex-start;
+}
+
+.step-number {
+    background-color: var(--primary);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-card h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: var(--text-dark);
+}
+
+.nav-links a.active {
+    color: var(--primary);
+    font-weight: 700;
+}
