@@ -5,6 +5,100 @@ document.addEventListener('DOMContentLoaded', () => {
     const analyzeBtn = document.getElementById('analyzeBtn');
     const status = document.getElementById('status');
 
+    // Auth UI Elements
+    const loginSection = document.getElementById('loginSection');
+    const logoutSection = document.getElementById('logoutSection');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const createSheetBtn = document.getElementById('createSheetBtn');
+    const sheetStatus = document.getElementById('sheetStatus');
+
+    // --- Authentication Logic ---
+
+    function updateAuthUI(token) {
+        if (token) {
+            loginSection.style.display = 'none';
+            logoutSection.style.display = 'block';
+            checkSheetStatus(token);
+        } else {
+            loginSection.style.display = 'block';
+            logoutSection.style.display = 'none';
+        }
+    }
+
+    function checkAuth() {
+        chrome.identity.getAuthToken({ interactive: false }, (token) => {
+            if (chrome.runtime.lastError || !token) {
+                updateAuthUI(null);
+            } else {
+                updateAuthUI(token);
+            }
+        });
+    }
+
+    async function checkSheetStatus(token) {
+        // Update button text based on if sheet exists locally
+        const storage = await chrome.storage.local.get(['spreadsheetId']);
+        if (storage.spreadsheetId) {
+            createSheetBtn.textContent = "Open Tracker Sheet";
+            createSheetBtn.onclick = () => {
+                window.open(`https://docs.google.com/spreadsheets/d/${storage.spreadsheetId}`, '_blank');
+            };
+        } else {
+            createSheetBtn.textContent = "Create Tracker Sheet";
+            createSheetBtn.onclick = () => handleCreateSheet(token);
+        }
+    }
+
+    async function handleCreateSheet(token) {
+        createSheetBtn.disabled = true;
+        createSheetBtn.textContent = "Creating...";
+
+        try {
+            // SheetsService is available from sheets.js included in popup.html
+            const sheetId = await SheetsService.getOrCreateSheet(token);
+            sheetStatus.textContent = "Sheet ready!";
+            sheetStatus.style.color = "green";
+            checkSheetStatus(token); // Refresh button state
+        } catch (err) {
+            console.error(err);
+            sheetStatus.textContent = "Error: " + err.message;
+            sheetStatus.style.color = "red";
+        } finally {
+            createSheetBtn.disabled = false;
+        }
+    }
+
+    // Login
+    loginBtn.addEventListener('click', () => {
+        chrome.identity.getAuthToken({ interactive: true }, (token) => {
+            if (chrome.runtime.lastError) {
+                alert("Login failed: " + chrome.runtime.lastError.message);
+                return;
+            }
+            updateAuthUI(token);
+        });
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+        chrome.identity.getAuthToken({ interactive: false }, (token) => {
+            if (token) {
+                chrome.identity.removeCachedAuthToken({ token: token }, () => {
+                    updateAuthUI(null);
+                    alert("Logged out.");
+                });
+            } else {
+                updateAuthUI(null);
+            }
+        });
+    });
+
+    // Initial Check
+    checkAuth();
+
+    // --- Existing Settings Logic ---
+
     // Load saved settings
     chrome.storage.local.get(['geminiApiKey', 'userCvText'], (result) => {
         if (result.geminiApiKey) {
@@ -30,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
         });
     });
-    // Verify save logic is preserved... (This comment is for context, not replacement)
 
     // Analyze Current Page
     analyzeBtn.addEventListener('click', () => {

@@ -102,6 +102,30 @@
             <textarea id="cvText" placeholder="Paste your full CV text here..."></textarea>
         </div>
         <button id="saveBtn">Save Settings</button>
+        <div class="form-group" style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px">
+                <label style="margin: 0">Job Tracking (Google Sheets)</label>
+                <a href="help_login.html" target="_blank" style="font-size: 11px; color: #4285f4; text-decoration: none">Setup Guide</a>
+            </div>
+
+            <div id="authParams">
+                <!-- Login State -->
+                <div id="loginSection">
+                    <button id="loginBtn" style="background-color: white; color: #757575; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18" alt="G" />
+                        Sign in with Google
+                    </button>
+                </div>
+
+                <!-- Logout State -->
+                <div id="logoutSection" style="display: none">
+                    <button id="createSheetBtn" style="background-color: #0f9d58; margin-bottom: 8px">Create/Open Tracker Sheet</button>
+                    <button id="logoutBtn" style="background-color: #f1f3f4; color: #333; border: 1px solid #ddd">Logout</button>
+                    <div id="sheetStatus" style="font-size: 11px; color: #555; text-align: center; margin-top: 5px"></div>
+                </div>
+            </div>
+        </div>
+
         <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px">
             <button id="analyzeBtn" style="background-color: #34a853">Analyze Current Page</button>
         </div>
@@ -109,6 +133,7 @@
         <div class="footer">
             Made by <a href="https://subha-1.netlify.app/" target="_blank"><strong>Subha Biswal</strong></a>
         </div>
+        <script src="sheets.js"></script>
         <script src="popup.js"></script>
     </body>
 </html>

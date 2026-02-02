@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Google Cloud Login Setup</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                color: #333;
+                line-height: 1.6;
+            }
+            h2 {
+                color: #4285f4;
+                border-bottom: 2px solid #eee;
+                padding-bottom: 10px;
+            }
+            .step {
+                background: #f9f9f9;
+                border: 1px solid #ddd;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+            .step h3 {
+                margin-top: 0;
+                color: #202124;
+            }
+            code {
+                background-color: #eee;
+                padding: 2px 5px;
+                border-radius: 4px;
+                font-family: Consolas, monospace;
+                word-break: break-all;
+            }
+            .warning {
+                background-color: #fff3cd;
+                border-left: 5px solid #ffc107;
+                padding: 15px;
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Setting up Google Login (OAuth 2.0)</h2>
+        <p>To enable the "Save to Google Sheets" feature, you need to create a project in Google Cloud and get a Client ID. This is a one-time setup.</p>
+
+        <div class="step">
+            <h3>Step 1: Create a Project</h3>
+            <ol>
+                <li>Go to the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>.</li>
+                <li>Click the project dropdown at the top and select <strong>"New Project"</strong>.</li>
+                <li>Name it "Resume Job Matcher" (or anything you like) and click <strong>Create</strong>.</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Enable APIs</h3>
+            <p>Wait for the project to be created, then select it.</p>
+            <ol>
+                <li>In the sidebar, go to <strong>APIs & Services > Library</strong>.</li>
+                <li>Search for "<strong>Google Sheets API</strong>" and click <strong>Enable</strong>.</li>
+                <li>Search for "<strong>Google Drive API</strong>" and click <strong>Enable</strong>.</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Configure Consent Screen</h3>
+            <ol>
+                <li>Go to <strong>APIs & Services > OAuth consent screen</strong>.</li>
+                <li>Select <strong>External</strong> and click Create.</li>
+                <li>Fill in the <strong>App Name</strong> (e.g., "CV Matcher") and <strong>User Support Email</strong>.</li>
+                <li>Skip the rest (scopes, test users) for now by clicking "Save and Continue".</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: Create Client ID</h3>
+            <ol>
+                <li>Go to <strong>APIs & Services > Credentials</strong>.</li>
+                <li>Click <strong>+ CREATE CREDENTIALS</strong> and select <strong>OAuth client ID</strong>.</li>
+                <li><strong>Application type</strong>: Select <strong>Chrome Extension</strong>.</li>
+                <li><strong>Name</strong>: "CV Matcher Extension".</li>
+                <li>
+                    <strong>Item ID</strong>: You need your extension's ID.
+                    <ul>
+                        <li>Go to <code>chrome://extensions</code> in a new tab.</li>
+                        <li>Find "Resume Job Matcher" and copy the ID (e.g., <code>abcdefghijkl...</code>).</li>
+                    </ul>
+                </li>
+                <li>Paste the ID into the <strong>Item ID</strong> field in Cloud Console.</li>
+                <li>Click <strong>Create</strong>.</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Step 5: Copy Client ID</h3>
+            <p>You will see a pop-up with your Client ID.</p>
+            <p>Copy the string ending in <code>.apps.googleusercontent.com</code>.</p>
+            <p><strong>Action Required:</strong> In this codebase, open <code>manifest.json</code> and paste this key into the <code>oauth2.client_id</code> field.</p>
+        </div>
+    </body>
+</html>

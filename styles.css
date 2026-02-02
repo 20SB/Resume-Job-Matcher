@@ -107,3 +107,91 @@
     background-color: #fce8e6;
     color: #c5221f;
 }
+
+/* --- Animated Analyze Button --- */
+#cv-matcher-analyze-btn {
+    /* Reset & Position */
+    position: fixed !important;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+
+    /* Size & Text */
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+
+    /* Structure */
+    border: none;
+    background: transparent; /* Transparent so pseudo-elements show */
+    border-radius: 24px;
+
+    /* Animation container */
+    isolation: isolate;
+}
+
+/* The Rotating Gradient Border */
+#cv-matcher-analyze-btn::before {
+    content: "";
+    position: absolute;
+    /* Increased size to accommodate border while keeping RGB width */
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    background-size: 400%;
+    z-index: -2;
+    /* Adjusted radius for larger size */
+    border-radius: 30px; 
+    animation: glowing 20s linear infinite;
+    opacity: 1; /* Full opacity for vivid colors */
+    
+    /* Outer White Ring using valid border */
+    border: 3px solid white;
+    /* Drop shadow for depth */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* The Inner Background (Button Color) */
+#cv-matcher-analyze-btn::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    background: #0a66c2; /* LinkedIn Blue */
+    z-index: -1;
+    border-radius: 21px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    /* Inner White Ring */
+    border: 2px solid white;
+    box-sizing: border-box;
+}
+
+/* Hover Effect - intensified glow */
+#cv-matcher-analyze-btn:hover::before {
+    filter: blur(5px);
+    opacity: 1;
+    animation: glowing 8s linear infinite; /* Speed up on hover */
+}
+
+/* Active/Click Effect */
+#cv-matcher-analyze-btn:active::after {
+    background: #004182;
+}
+
+@keyframes glowing {
+    0% {
+        background-position: 0 0;
+    }
+    50% {
+        background-position: 400% 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}

@@ -1,6 +1,12 @@
 // Background script to handle Gemini API calls
 // Using the REST API to avoid bundling complex client libraries
 
+try {
+    importScripts('sheets.js');
+} catch (e) {
+    console.error(e);
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "analyzeCV") {
         analyzeWithGemini(request.data)
@@ -8,7 +14,38 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             .catch(error => sendResponse({ success: false, error: error.message }));
         return true; // Keep the message channel open for async response
     }
+
+    if (request.action === "saveToSheet") {
+        saveJobToSheet(request.data)
+            .then(result => sendResponse({ success: true, data: result }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+        return true;
+    }
 });
+
+async function saveJobToSheet(jobData) {
+    return new Promise((resolve, reject) => {
+        chrome.identity.getAuthToken({ interactive: false }, async (token) => {
+            if (chrome.runtime.lastError || !token) {
+                return reject(new Error("Please login via the extension popup first."));
+            }
+
+            try {
+                // Ensure SheetsService is available (imported via importScripts)
+                if (typeof SheetsService === 'undefined') {
+                    throw new Error("SheetsService not loaded");
+                }
+
+                const sheetId = await SheetsService.getOrCreateSheet(token);
+                const result = await SheetsService.appendJob(token, sheetId, jobData);
+                resolve(result);
+            } catch (err) {
+                console.error("Save to Sheet Error:", err);
+                reject(err);
+            }
+        });
+    });
+}
 
 async function analyzeWithGemini(data) {
     const { apiKey, cvText, jobDescription } = data;

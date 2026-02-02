@@ -12,19 +12,11 @@ function createAnalyzeButton() {
     const btn = document.createElement('button');
     btn.id = 'cv-matcher-analyze-btn';
     btn.textContent = 'Analyze Match';
+    // Use LinkedIn classes for font/look but our ID will override structure
     btn.className = 'artdeco-button artdeco-button--2 artdeco-button--primary ember-view';
-    btn.style.position = 'fixed';
-    btn.style.bottom = '20px';
-    btn.style.right = '20px';
-    btn.style.zIndex = '9999';
-    btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    btn.style.backgroundColor = '#0a66c2';
-    btn.style.color = 'white';
-    btn.style.border = 'none';
-    btn.style.borderRadius = '24px';
-    btn.style.padding = '10px 24px';
-    btn.style.fontWeight = '600';
-    btn.style.cursor = 'pointer';
+
+    // Inline styles removed - delegated to styles.css for easier animation management
+    // We only keep the event listener attachment
 
     btn.addEventListener('click', handleAnalyzeClick);
     document.body.appendChild(btn);
@@ -49,6 +41,33 @@ function getJobDescription() {
 
     // Fallback: Try to grab main body text, excluding nav/footer if possible
     return document.body.innerText;
+}
+
+// Helper to get Job Metadata (Title, Company, URL)
+function getJobMetadata() {
+    let title = "Unknown Title";
+    let company = "Unknown Company";
+
+    if (window.location.hostname.includes('linkedin.com')) {
+        // LinkedIn Specific Selectors
+        const titleEl = document.querySelector('.job-details-jobs-unified-top-card__job-title') ||
+            document.querySelector('h1');
+        if (titleEl) title = titleEl.innerText.trim();
+
+        const companyEl = document.querySelector('.job-details-jobs-unified-top-card__primary-description a') ||
+            document.querySelector('.job-details-jobs-unified-top-card__company-name a');
+        if (companyEl) company = companyEl.innerText.trim();
+    } else {
+        // Generic Fallback
+        const h1 = document.querySelector('h1');
+        if (h1) title = h1.innerText.trim();
+    }
+
+    return {
+        title: title,
+        company: company,
+        url: window.location.href
+    };
 }
 
 // Listen for messages from Popup
@@ -91,8 +110,10 @@ async function handleAnalyzeClick() {
                 return;
             }
 
-            // 2. Scrape Job Description
+            // 2. Scrape Job Description & Metadata
             const jobDescription = getJobDescription();
+            const jobMetadata = getJobMetadata();
+
             if (!jobDescription || jobDescription.length < 50) {
                 alert('Could not find a valid job description on this page.');
                 resetBtn();
@@ -107,7 +128,8 @@ async function handleAnalyzeClick() {
                     apiKey: storage.geminiApiKey,
                     cvText: storage.userCvText,
                     modelName: storage.geminiModel,
-                    jobDescription: jobDescription
+                    jobDescription: jobDescription,
+                    jobMetadata: jobMetadata // Pass metadata too
                 }
             }, (response) => {
                 resetBtn();
@@ -119,7 +141,9 @@ async function handleAnalyzeClick() {
                 }
 
                 if (response.success) {
-                    showResultsOverlay(response.data);
+                    // Combine analysis data with metadata for the view
+                    const fullData = { ...response.data, ...jobMetadata };
+                    showResultsOverlay(fullData);
                     resolve({ success: true });
                 } else {
                     alert('Analysis failed: ' + response.error);
@@ -148,6 +172,7 @@ function showResultsOverlay(data) {
     const matchingSkills = Array.isArray(data.matchingSkills) ? data.matchingSkills : [];
     const missingSkills = Array.isArray(data.missingSkills) ? data.missingSkills : [];
     const experienceAnalysis = data.experienceAnalysis || "No analysis provided.";
+    const recommendation = data.recommendation || ""; // Should come from analysis? currently not strictly fields, usually summary includes it.
 
     overlay = document.createElement('div');
     overlay.id = 'cv-matcher-overlay';
@@ -188,6 +213,26 @@ function showResultsOverlay(data) {
                 <h4>Experience Analysis</h4>
                 <p>${experienceAnalysis}</p>
             </div>
+
+            <div class="section" style="border-top: 1px solid #eee; padding-top: 15px; text-align: center;">
+                <button id="saveToSheetBtn" style="
+                    background-color: #0f9d58;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto;
+                    gap: 5px;
+                ">
+                    <span>Save to Google Sheet</span>
+                </button>
+                <div id="saveStatus" style="font-size: 11px; margin-top: 5px; color: #666;"></div>
+            </div>
         </div>
     `;
 
@@ -199,6 +244,39 @@ function showResultsOverlay(data) {
             overlay.parentNode.removeChild(overlay);
         }
         overlay = null;
+    });
+
+    // Handle Save to Sheet
+    const saveBtn = overlay.querySelector('#saveToSheetBtn');
+    const statusDiv = overlay.querySelector('#saveStatus');
+
+    saveBtn.addEventListener('click', () => {
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = '0.7';
+        saveBtn.innerText = 'Saving...';
+
+        chrome.runtime.sendMessage({
+            action: "saveToSheet",
+            data: {
+                title: data.title,
+                company: data.company,
+                url: data.url,
+                matchScore: matchPercentage,
+                recommendation: summary // Using summary as notes/rec for now
+            }
+        }, (response) => {
+            if (response && response.success) {
+                saveBtn.innerText = 'Saved!';
+                statusDiv.innerText = 'Row added to spreadsheet.';
+                statusDiv.style.color = 'green';
+            } else {
+                saveBtn.innerText = 'Retry Save';
+                saveBtn.disabled = false;
+                saveBtn.style.opacity = '1';
+                statusDiv.innerText = 'Error: ' + (response ? response.error : 'Unknown error');
+                statusDiv.style.color = 'red';
+            }
+        });
     });
 }
 
