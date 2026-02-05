@@ -75,6 +75,89 @@
             </div>
         </section>
 
+        <section class="faq-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Frequently Asked Questions</h2>
+                    <p>Got questions? We've got answers.</p>
+                </div>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What is Resume Job Matcher?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Resume Job Matcher is a Chrome extension that uses AI to analyze how well your resume matches a job description. It provides a match score, identifies relevant skills, highlights missing qualifications, and lets you track applications in Google Sheets.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Do I need to pay for this extension?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>The extension itself is completely free. However, you'll need a Gemini API key to use the AI matching features. Google offers a generous free tier for the Gemini API, which is sufficient for most job seekers.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I get a Gemini API key?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>You can get a free Gemini API key from Google AI Studio. Visit <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>, sign in with your Google account, and create a new API key. The free tier includes generous usage limits.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Is my resume data private and secure?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Absolutely. We take privacy seriously. Your resume is processed using YOUR personal API key, and we don't store your resume or job data on any external servers. All data stays between your browser and Google's Gemini API.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Which job sites does it work with?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Resume Job Matcher works on any website where you can view a job description. Simply navigate to a job posting, open the extension, paste or upload your resume, and let the AI analyze the match.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How does the Google Sheets tracking work?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>After analyzing a job, you can click "Save to Sheets" to automatically log the job title, company, URL, match score, and notes to a Google Sheet of your choice. This helps you organize and track all your job applications in one place.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Can I use this for multiple resumes or versions?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes! Each time you analyze a job, you can paste or upload a different version of your resume. This is perfect if you tailor your resume for different types of positions.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What information does the match analysis provide?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>The analysis includes: (1) A percentage match score, (2) A list of matching skills/qualifications you have, (3) Missing skills or requirements you don't currently meet, and (4) Suggestions for improving your application.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <footer>
             <div class="container">
                 <div class="footer-content">
@@ -88,5 +171,27 @@
                 </div>
             </div>
         </footer>
+
+        <script>
+            // FAQ Accordion functionality
+            document.querySelectorAll('.faq-question').forEach(button => {
+                button.addEventListener('click', () => {
+                    const faqItem = button.parentElement;
+                    const isActive = faqItem.classList.contains('active');
+
+                    // Close all other items
+                    document.querySelectorAll('.faq-item').forEach(item => {
+                        item.classList.remove('active');
+                        item.querySelector('.faq-icon').textContent = '+';
+                    });
+
+                    // Toggle current item
+                    if (!isActive) {
+                        faqItem.classList.add('active');
+                        button.querySelector('.faq-icon').textContent = '−';
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
